@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Нейро-контурное управление — проблемная</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: #f5f5f7; color: #1a1a2e; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+
+        .container { max-width: 960px; width: 100%; }
+        .slide { display: none; animation: fade 0.5s ease; }
+        .slide.active { display: block; }
+        @keyframes fade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .badge { display: inline-block; background: #e8e4f0; padding: 6px 20px; border-radius: 40px; font-size: 12px; font-weight: 600; color: #6c3ce0; margin-bottom: 16px; }
+        h1 { font-size: clamp(32px, 4vw, 48px); font-weight: 700; line-height: 1.1; color: #1a1a2e; }
+        h2 { font-size: 28px; font-weight: 600; margin-bottom: 16px; color: #1a1a2e; }
+        .sub { font-size: 18px; color: #4a4a6a; margin-top: 8px; }
+        .text { font-size: 17px; color: #3a3a5a; line-height: 1.7; }
+        .text-small { font-size: 15px; color: #5a5a7a; line-height: 1.6; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+        .card { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border: 1px solid #eee; }
+        .card .icon { font-size: 28px; display: block; margin-bottom: 8px; }
+        .card h3 { font-size: 16px; font-weight: 600; color: #1a1a2e; margin-bottom: 4px; }
+        .card p { font-size: 14px; color: #5a5a7a; }
+        .card .table-wrap { overflow-x: auto; font-size: 13px; }
+
+        .stat { text-align: center; }
+        .stat .num { font-size: 34px; font-weight: 700; color: #6c3ce0; display: block; }
+        .stat .lbl { font-size: 13px; color: #6a6a8a; }
+
+        .btn-group { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; justify-content: center; }
+        .btn { display: inline-block; background: #6c3ce0; color: #fff; padding: 10px 28px; border-radius: 50px; font-weight: 600; font-size: 14px; text-decoration: none; transition: 0.2s; border: none; cursor: pointer; }
+        .btn:hover { background: #5a2fc0; transform: translateY(-2px); }
+        .btn-secondary { background: #e8e4f0; color: #1a1a2e; }
+        .btn-secondary:hover { background: #ddd6e8; }
+        .btn-landing { background: #00b4d8; color: #fff; }
+        .btn-landing:hover { background: #0098b8; }
+
+        .nav { display: flex; justify-content: center; gap: 8px; margin-top: 32px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; background: #d0c8dc; border: none; cursor: pointer; transition: 0.3s; padding: 0; }
+        .dot.active { background: #6c3ce0; width: 28px; border-radius: 6px; }
+
+        .footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid #e8e4f0; text-align: center; font-size: 13px; color: #8a8aaa; }
+        .footer a { color: #6c3ce0; text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+
+        .highlight-box { background: #fdf0f0; border-radius: 12px; padding: 16px 20px; margin: 16px 0; border-left: 4px solid #b0003a; }
+        .highlight-box strong { color: #b0003a; }
+
+        .table-evo { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .table-evo th { background: #6c3ce0; color: #fff; padding: 8px 10px; text-align: left; }
+        .table-evo td { padding: 8px 10px; border-bottom: 1px solid #eee; }
+        .table-evo tr:nth-child(even) { background: #f8f6fc; }
+        .table-evo tr:last-child { background: #f0ecf5; font-weight: 500; }
+
+        @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } .table-evo { font-size: 10px; } }
+    </style>
+</head>
+<body>
+<div class="container" id="app">
+
+    <!-- СЛАЙД 1: ПРОБЛЕМЫ -->
+    <div class="slide active" data-slide="0">
+        <div style="text-align: center; padding: 10px 0;">
+            <div class="badge">АНО «Центр нейро-контурного управления»</div>
+            <h1>Нейро-контурное<br>управление мотивацией</h1>
+            <p class="sub">Системная архитектура для цифровой эпохи</p>
+        </div>
+        <div class="grid-2">
+            <div class="card"><span class="icon">📉</span><h3>Текучка кадров растёт</h3><p>Удержание талантливых сотрудников становится главным вызовом. Затраты на поиск и адаптацию — 6–12 окладов.</p></div>
+            <div class="card"><span class="icon">📊</span><h3>KPI не работают</h3><p>Формальные показатели не отражают реальный вклад в интеллектуальном труде. Сотрудники выбирают лёгкие задачи.</p></div>
+            <div class="card"><span class="icon">💰</span><h3>Деньги перестали мотивировать</h3><p>Когда базовые потребности закрыты, на первый план выходят смысл, признание и развитие. Премия — уже не событие.</p></div>
+            <div class="card"><span class="icon">🧩</span><h3>Инструменты разрознены</h3><p>KPI, геймификация, опросы — работают по отдельности. Большинство проектов умирают через 6–12 месяцев.</p></div>
+        </div>
+        <div class="highlight-box">
+            <p class="text"><strong>72%</strong> сотрудников не видят связи между своим вкладом и вознаграждением. Обратная связь — раз в квартал. Мозг не связывает действие и отложенный бонус.</p>
+        </div>
+        <div class="btn-group">
+            <button class="btn" onclick="goTo(1)">Дальше →</button>
+        </div>
+    </div>
+
+    <!-- СЛАЙД 2: ЭВОЛЮЦИЯ (НОВЫЙ) -->
+    <div class="slide" data-slide="1">
+        <h2>Эволюция мотивационных систем</h2>
+        <p class="text-small" style="margin-bottom: 12px;">Смена технологических укладов всегда сопровождается трансформацией механизмов трудовой мотивации.</p>
+        <div class="card">
+            <div class="table-wrap">
+                <table class="table-evo">
+                    <thead><tr><th>Период</th><th>Технологический уклад</th><th>Модель мотивации</th><th>Институциональная основа</th></tr></thead>
+                    <tbody>
+                        <tr><td>Конец XIX — начало XX в.</td><td>Индустриальный (1–2)</td><td>Тейлоризм: сдельная оплата, контроль, штрафы</td><td>Регламенты, иерархия</td></tr>
+                        <tr><td>1930–1960-е гг.</td><td>Индустриальный (2–3)</td><td>Школа человеческих отношений: соц. факторы, группы</td><td>Профсоюзы, коллективные договоры</td></tr>
+                        <tr><td>1960–2000-е гг.</td><td>Постиндустриальный (4–5)</td><td>Теория капитала: образование, KPI, бонусы</td><td>Рыночные контракты, опционы</td></tr>
+                        <tr style="background: #f0ecf5; font-weight: 500;"><td>2020–2040-е гг.</td><td>Цифровой (5–6)</td><td>Нейро-контурная экономика</td><td>Цифровые платформы, паспорт</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-secondary" onclick="goTo(0)">← Назад</button>
+            <button class="btn" onclick="goTo(2)">Дальше →</button>
+        </div>
+    </div>
+
+    <!-- СЛАЙД 3: ЦЕНА БЕЗДЕЙСТВИЯ -->
+    <div class="slide" data-slide="2">
+        <h2>Цена бездействия</h2>
+        <p class="text">Глобальная вовлечённость — всего <strong>21%</strong> (Gallup, 2024). 4 из 5 сотрудников не выкладываются на работе. Потери мировой экономики — <strong>$438 млрд</strong> в год.</p>
+        <div class="grid-2" style="margin-top: 12px;">
+            <div class="card"><span class="stat"><span class="num">+21–23%</span><span class="lbl">выше прибыль у компаний с высокой вовлечённостью</span></span></div>
+            <div class="card"><span class="stat"><span class="num">17–18%</span><span class="lbl">выше производительность</span></span></div>
+            <div class="card"><span class="stat"><span class="num">59–70%</span><span class="lbl">ниже текучесть</span></span></div>
+            <div class="card"><span class="stat"><span class="num">$438 млрд</span><span class="lbl">потерь в год</span></span></div>
+        </div>
+        <p class="text-small" style="text-align: center; color: #8a8aaa;">Источник: Gallup, 2024</p>
+        <div class="btn-group">
+            <button class="btn btn-secondary" onclick="goTo(1)">← Назад</button>
+            <button class="btn" onclick="goTo(3)">Дальше →</button>
+        </div>
+    </div>
+
+    <!-- СЛАЙД 4: КОРЕНЬ ПРОБЛЕМЫ -->
+    <div class="slide" data-slide="3">
+        <h2>Корень проблемы — в нейробиологии</h2>
+        <p class="text">Дофаминовая система активируется в момент <strong>ожидания</strong> награды, а не её получения. Когда бонус гарантирован и отложен на месяцы — он не работает. Штрафы активируют стресс и разрушают мотивацию вдвое сильнее, чем премии того же размера (эффект неприятия потерь).</p>
+        <div class="card" style="background: #f0ecf5; border-left: 4px solid #6c3ce0;">
+            <p class="text"><strong>Вывод:</strong> нужна система, которая даёт частую, недетерминированную обратную связь, исключает штрафы и поддерживает внутренние драйверы — автономию, компетентность, связанность и смысл.</p>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-secondary" onclick="goTo(2)">← Назад</button>
+            <button class="btn" onclick="goTo(4)">Дальше →</button>
+        </div>
+    </div>
+
+    <!-- СЛАЙД 5: РЕШЕНИЕ -->
+    <div class="slide" data-slide="4">
+        <h2>Два контура — единая система</h2>
+        <p class="text">Мы предлагаем архитектуру, которая объединяет внешнее материальное подкрепление и внутреннюю психологическую поддержку.</p>
+        <div class="grid-2">
+            <div class="card" style="border-left: 4px solid #6c3ce0;">
+                <span class="icon">⚡</span>
+                <h3>Внешний контур — топливо</h3>
+                <p>Еженедельные баллы за действия, автоматическое начисление, прозрачные алгоритмы. Без субъективизма и ручного сбора KPI.</p>
+            </div>
+            <div class="card" style="border-left: 4px solid #00b4d8;">
+                <span class="icon">🧠</span>
+                <h3>Внутренний контур — двигатель</h3>
+                <p>Ритуалы признания, дерево навыков, горизонтальное признание от коллег, рефлексия. То, что даёт смысл, развитие и ощущение ценности.</p>
+            </div>
+        </div>
+        <p class="text-small" style="text-align: center; font-style: italic;">Без внешнего — не запустить. Без внутреннего — система умрёт через 6–12 месяцев.</p>
+        <div class="btn-group">
+            <button class="btn btn-secondary" onclick="goTo(3)">← Назад</button>
+            <button class="btn" onclick="goTo(5)">Дальше →</button>
+        </div>
+    </div>
+
+    <!-- СЛАЙД 6: ВАРИАНТЫ + ССЫЛКА НА ЛЕНДИНГ -->
+    <div class="slide" data-slide="5">
+        <h2>Три варианта — под ваш бюджет</h2>
+        <p class="text">Мы не требуем полной автоматизации с первого дня. Подбираем решение, которое вам по силам сейчас, и помогаем расти.</p>
+        <div class="grid-2" style="margin-top: 12px;">
+            <div class="card"><span class="icon">🔍</span><h3>Аудит</h3><p>Анализ текущей системы мотивации. Выявление «слепых зон» и быстрых улучшений. Без изменений в IT-ландшафте.</p></div>
+            <div class="card"><span class="icon">🧠</span><h3>Облегчённый контур</h3><p>Внедрение ритуалов, дерева навыков и горизонтального признания. Без IT-разработки — только методология и обучение.</p></div>
+            <div class="card" style="border: 1px solid #6c3ce0;"><span class="icon">🚀</span><h3>Гибкий запуск</h3><p>Пилот на одной команде с автоматизацией через API. Отработка процессов, сбор данных, затем масштабирование.</p></div>
+        </div>
+        <div style="text-align: center; margin-top: 16px;">
+<a href="business-landing.html" class="btn btn-landing" target="_blank">🌐 Вернуться на лендинг</a>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-secondary" onclick="goTo(4)">← Назад</button>
+            <button class="btn btn-secondary" onclick="goTo(0)">В начало</button>
+        </div>
+    </div>
+
+    <div class="nav">
+        <button class="dot active" onclick="goTo(0)"></button>
+        <button class="dot" onclick="goTo(1)"></button>
+        <button class="dot" onclick="goTo(2)"></button>
+        <button class="dot" onclick="goTo(3)"></button>
+        <button class="dot" onclick="goTo(4)"></button>
+        <button class="dot" onclick="goTo(5)"></button>
+    </div>
+    <div class="footer">
+        <a href="index.html">← На главный сайт</a>
+        <span style="margin: 0 8px; color: #d0c8dc;">·</span>
+        <a href="mailto:centrncm@yandex.ru">centrncm@yandex.ru</a>
+        <span style="margin: 0 8px; color: #d0c8dc;">·</span>
+        <a href="business-landing.html">Бизнес-лендинг</a>
+    </div>
+</div>
+
+<script>
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.dot');
+    let current = 0;
+
+    function goTo(n) {
+        slides.forEach(s => s.classList.remove('active'));
+        dots.forEach(d => d.classList.remove('active'));
+        slides[n].classList.add('active');
+        dots[n].classList.add('active');
+        current = n;
+    }
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            const next = (current + 1) % slides.length;
+            goTo(next);
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            const prev = (current - 1 + slides.length) % slides.length;
+            goTo(prev);
+        }
+    });
+</script>
+</body>
+</html>

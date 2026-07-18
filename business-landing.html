@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Нейро-контурное управление мотивацией</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: #0b0b1a; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; position: relative; }
+
+        .bg-glow { position: fixed; width: 600px; height: 600px; border-radius: 50%; filter: blur(120px); opacity: 0.3; z-index: 0; }
+        .glow-1 { top: -200px; right: -200px; background: #6c3ce0; }
+        .glow-2 { bottom: -200px; left: -200px; background: #00b4d8; }
+
+        .container { position: relative; z-index: 1; max-width: 1200px; width: 100%; }
+
+        /* ── Трёхколоночная сетка ── */
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 32px; align-items: stretch; }
+
+        /* ── Левая колонка (проблемы) ── */
+        .left-col { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 28px 24px; border: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(4px); display: flex; flex-direction: column; justify-content: center; }
+        .left-col h2 { font-size: 20px; font-weight: 600; color: #f0f0ff; margin-bottom: 16px; }
+        .left-col .problem-grid { display: flex; flex-direction: column; gap: 8px; }
+        .left-col .problem-item { display: flex; align-items: center; gap: 10px; color: #b0b0d0; font-size: 14px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .left-col .problem-item:last-child { border-bottom: 0; }
+        .left-col .problem-item .icon { font-size: 16px; flex-shrink: 0; }
+
+        /* ── Центральная колонка (бренд) ── */
+        .center-col { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px 0; }
+        .center-col h1 { font-size: clamp(28px, 3.2vw, 42px); font-weight: 700; line-height: 1.2; background: linear-gradient(135deg, #ffffff 0%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .center-col .sub { font-size: clamp(14px, 1.2vw, 18px); color: #a0a0c0; margin-top: 8px; max-width: 400px; margin-left: auto; margin-right: auto; }
+        .center-col .metaphor { margin-top: 24px; display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 280px; margin-left: auto; margin-right: auto; }
+        .center-col .metaphor-item { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px 16px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(4px); }
+        .center-col .metaphor-item .icon { font-size: 22px; }
+        .center-col .metaphor-item .label { font-size: 14px; font-weight: 500; color: #c0c0e0; }
+        .center-col .metaphor-item .desc { font-size: 11px; color: #8080a0; }
+        .center-col .metaphor-arrow { text-align: center; font-size: 20px; color: #6c3ce0; }
+
+        .center-col .stats { margin-top: 24px; display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; }
+        .center-col .stat { text-align: center; }
+        .center-col .stat .num { font-size: 26px; font-weight: 700; color: #a78bfa; display: block; }
+        .center-col .stat .lbl { font-size: 12px; color: #8080a0; }
+
+        /* ── Правая колонка (решение) ── */
+        .right-col { background: linear-gradient(135deg, rgba(108,60,224,0.10), rgba(79,70,229,0.06)); border-radius: 20px; padding: 28px 24px; border: 1px solid rgba(108,60,224,0.2); backdrop-filter: blur(4px); display: flex; flex-direction: column; justify-content: center; }
+        .right-col h2 { font-size: 20px; font-weight: 600; color: #f0f0ff; margin-bottom: 8px; }
+        .right-col .sub { font-size: 14px; color: #b0b0d0; max-width: 400px; margin-left: 0; }
+        .right-col .solution-benefits { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+        .right-col .solution-benefits span { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); padding: 6px 12px; border-radius: 30px; font-size: 13px; color: #c0c0e0; border: 1px solid rgba(255,255,255,0.06); }
+
+        .right-col .btn-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .right-col .btn { display: inline-block; background: linear-gradient(135deg, #6c3ce0, #4f46e5); color: #fff; padding: 10px 24px; border-radius: 50px; font-weight: 600; font-size: 14px; text-decoration: none; transition: all 0.3s; box-shadow: 0 8px 32px rgba(108, 60, 224, 0.3); border: none; cursor: pointer; text-align: center; }
+        .right-col .btn:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 12px 40px rgba(108, 60, 224, 0.5); }
+        .right-col .btn-secondary { background: rgba(255,255,255,0.08); box-shadow: none; border: 1px solid rgba(255,255,255,0.1); }
+        .right-col .btn-secondary:hover { background: rgba(255,255,255,0.15); }
+        .right-col .time { margin-top: 8px; font-size: 12px; color: #6c3ce0; }
+
+        /* ── Контуры перенесены вниз ── */
+        .contours { margin-top: 40px; display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .contours .contour-item { display: flex; align-items: center; gap: 12px; padding: 10px 20px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(4px); }
+        .contours .contour-item .icon { font-size: 20px; }
+        .contours .contour-item .label { font-size: 14px; font-weight: 500; color: #c0c0e0; }
+        .contours .contour-item .desc { font-size: 11px; color: #8080a0; }
+        .contours .arrow { font-size: 20px; color: #6c3ce0; }
+
+        /* ── Футер ── */
+        .footer { margin-top: 28px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; font-size: 12px; color: #555570; }
+        .footer a { color: #8080a0; text-decoration: none; transition: 0.2s; }
+        .footer a:hover { color: #a78bfa; }
+        .footer span { color: #6c3ce0; }
+
+        /* ── Адаптив ── */
+        @media (max-width: 900px) {
+            .grid-3 { grid-template-columns: 1fr; gap: 24px; }
+            .center-col { order: -1; padding: 0 0 12px 0; }
+            .left-col, .right-col { padding: 20px; }
+            .center-col .metaphor { flex-direction: row; flex-wrap: wrap; justify-content: center; max-width: 100%; }
+            .center-col .metaphor-arrow { transform: rotate(90deg); }
+            .contours { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+            .contours .arrow { transform: rotate(90deg); }
+        }
+        @media (max-width: 500px) {
+            .center-col .metaphor-item { padding: 8px 12px; }
+            .center-col .metaphor-item .desc { display: none; }
+            .left-col .problem-item { font-size: 13px; }
+            .right-col .btn { width: 100%; text-align: center; }
+            .footer { flex-direction: column; align-items: center; text-align: center; gap: 6px; }
+        }
+    </style>
+</head>
+<body>
+<div class="bg-glow glow-1"></div>
+<div class="bg-glow glow-2"></div>
+
+<div class="container">
+
+    <div class="grid-3">
+
+        <!-- ═══ ЛЕВАЯ КОЛОНКА: ПРОБЛЕМЫ ═══ -->
+        <div class="left-col">
+            <h2>Эта боль знакома каждому руководителю</h2>
+            <div class="problem-grid">
+                <div class="problem-item"><span class="icon">📉</span> Текучка кадров растёт, удержать людей сложно</div>
+                <div class="problem-item"><span class="icon">📊</span> KPI не отражают реальный вклад сотрудников</div>
+                <div class="problem-item"><span class="icon">💰</span> Деньги перестали мотивировать</div>
+                <div class="problem-item"><span class="icon">🧩</span> HR-инструменты разрознены и не дают системы</div>
+            </div>
+        </div>
+
+        <!-- ═══ ЦЕНТРАЛЬНАЯ КОЛОНКА: БРЕНД ═══ -->
+        <div class="center-col">
+            <h1>Нейро-контурное<br>управление мотивацией</h1>
+        </div>
+
+        <!-- ═══ ПРАВАЯ КОЛОНКА: РЕШЕНИЕ ═══ -->
+        <div class="right-col">
+            <h2>Есть решение</h2>
+            <p class="sub">Системная архитектура, где внешние стимулы и внутренний смысл работают как единый механизм.</p>
+            <div class="solution-benefits">
+                <!-- пустые span, как в исходнике -->
+            </div>
+            <div class="btn-group">
+  <a href="business-presentation.html" class="btn" target="_blank">📊 Смотреть презентацию</a>
+<a href="#" class="btn btn-secondary" onclick="alert('Ссылки на статьи появятся после публикации'); return false;">📄 Читать статьи</a>
+            </div>
+          </div>
+
+    </div>
+
+    <!-- ═══ КОНТУРЫ ПЕРЕНЕСЕНЫ ВНИЗ ═══ -->
+    <div class="contours">
+        <div class="contour-item">
+            <span class="icon">⚡</span>
+            <span class="label">Внешний контур</span>
+            <span class="desc">Баллы · KPI · Премии</span>
+        </div>
+        <span class="arrow">⇄</span>
+        <div class="contour-item" style="border-color: rgba(108,60,224,0.3);">
+            <span class="icon">🧠</span>
+            <span class="label">Внутренний контур</span>
+            <span class="desc">Смысл · Рост · Признание</span>
+        </div>
+    </div>
+
+    <!-- ═══ ФУТЕР ═══ -->
+    <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap; font-size: 13px; color: #555570;">
+        <a href="index.html" style="color: #8080a0; text-decoration: none; transition: 0.2s;">← На главный сайт</a>
+        <span style="color: #6c3ce0;">·</span>
+        <a href="mailto:centrncm@yandex.ru" style="color: #8080a0; text-decoration: none; transition: 0.2s;">centrncm@yandex.ru</a>
+        <span style="color: #6c3ce0;">·</span>
+        <span>Для руководителей, HR-директоров, IT-лидов</span>
+    </div>
+
+</div>
+</body>
+</html>
