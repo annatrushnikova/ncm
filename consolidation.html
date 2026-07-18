@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Закрепление — Центр НКУ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #f7f7f9;
+            color: #1a1a2e;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e8e4f0;
+        }
+        .logo h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+        .logo span {
+            font-size: 13px;
+            color: #6a6a8a;
+        }
+        .nav {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .nav a {
+            color: #4a4a6a;
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        .nav a:hover {
+            color: #6c3ce0;
+        }
+        .nav a.active {
+            color: #6c3ce0;
+            font-weight: 500;
+        }
+
+        .page-title {
+            text-align: center;
+            padding: 32px 0 16px;
+        }
+        .page-title h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+        .page-title p {
+            font-size: 16px;
+            color: #5a5a7a;
+            margin-top: 4px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            background: #e8e4f0;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #4a4a6a;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .tab-btn:hover {
+            background: #ddd6e8;
+        }
+        .tab-btn.active {
+            background: #6c3ce0;
+            color: #fff;
+        }
+        .tab-content {
+            display: none;
+            animation: fade 0.3s ease;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fade {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px 28px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            border: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+        .card h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1a1a2e;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #6c3ce0;
+            color: #fff;
+            padding: 10px 28px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background: #5a2fc0;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #e8e4f0;
+            color: #1a1a2e;
+        }
+        .btn-secondary:hover {
+            background: #ddd6e8;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 16px 0 8px;
+            justify-content: center;
+        }
+        .result-message {
+            margin-top: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            text-align: center;
+        }
+        .success {
+            color: #155724;
+        }
+        .error {
+            color: #721c24;
+        }
+
+        /* ---- Викторина ---- */
+        .quiz-question {
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0ecf5;
+        }
+        .quiz-question:last-child {
+            border-bottom: 0;
+        }
+        .quiz-question .q-text {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .quiz-options label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: #fafafa;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .quiz-options label:hover {
+            background: #f0ecf5;
+        }
+        .quiz-options input[type="radio"] {
+            accent-color: #6c3ce0;
+            width: 18px;
+            height: 18px;
+        }
+        .quiz-options label.correct-answer {
+            background: #d4edda;
+            border: 2px solid #28a745;
+        }
+        .quiz-options label.wrong-answer {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+        }
+        .quiz-options label.disabled {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .quiz-result {
+            font-weight: 500;
+            margin-top: 6px;
+        }
+
+        /* ---- Анаграммы ---- */
+        .anagram-item {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px 20px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0ecf5;
+        }
+        .anagram-item:last-child {
+            border-bottom: 0;
+        }
+        .anagram-item .scrambled {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            color: #6c3ce0;
+            min-width: 120px;
+        }
+        .anagram-item .def {
+            flex: 1;
+            font-size: 15px;
+            color: #4a4a6a;
+        }
+        .anagram-item input {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            font-size: 16px;
+            font-weight: 600;
+            width: 160px;
+            transition: 0.2s;
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            background: #fafafa;
+        }
+        .anagram-item input:focus {
+            border-color: #6c3ce0;
+            outline: none;
+            background: #fff;
+        }
+        .anagram-item input.correct {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        .anagram-item input.wrong {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+        .anagram-item .status {
+            font-size: 20px;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e8e4f0;
+            text-align: center;
+            font-size: 13px;
+            color: #8a8aaa;
+        }
+        .footer a {
+            color: #6a6a8a;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            color: #6c3ce0;
+        }
+
+        @media (max-width: 640px) {
+            .anagram-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .anagram-item input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Шапка -->
+        <header class="header">
+            <div class="logo">
+                <h1>Центр НКУ</h1>
+                <span>АНО «Центр нейро-контурного управления»</span>
+            </div>
+            <nav class="nav">
+                <a href="index.html">Главная</a>
+                <a href="business-landing.html">Лендинг</a>
+                <a href="business-presentation.html">Презентация</a>
+                <a href="diagnostic.html">Диагностика</a>
+                <a href="consolidation.html" class="active">Закрепление</a>
+            </nav>
+        </header>
+
+        <div class="page-title">
+            <h2>🧠 Закрепление</h2>
+            <p>Тренируйте память с помощью викторины и анаграмм</p>
+        </div>
+
+        <!-- Вкладки -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="quiz">Викторина</button>
+            <button class="tab-btn" data-tab="anagram">Анаграммы</button>
+        </div>
+
+        <!-- ===== ВИКТОРИНА ===== -->
+        <div class="tab-content active" id="tab-quiz">
+            <div class="card">
+                <h3>📝 Викторина по терминам</h3>
+                <p style="color:#5a5a7a; margin-bottom: 12px;">Выберите правильный вариант ответа.</p>
+                <div id="quiz-container"></div>
+                <div class="btn-group">
+                    <button class="btn" id="checkQuiz">✅ Проверить</button>
+                    <button class="btn btn-secondary" id="resetQuiz">🔄 Начать заново</button>
+                </div>
+                <div id="quizResult" class="result-message"></div>
+            </div>
+        </div>
+
+        <!-- ===== АНАГРАММЫ ===== -->
+        <div class="tab-content" id="tab-anagram">
+            <div class="card">
+                <h3>🔄 Анаграммы</h3>
+                <p style="color:#5a5a7a; margin-bottom: 12px;">Угадайте термин по перемешанным буквам и определению.</p>
+                <div id="anagram-container"></div>
+                <div class="btn-group">
+                    <button class="btn" id="checkAnagram">✅ Проверить все</button>
+                    <button class="btn btn-secondary" id="resetAnagram">🔄 Очистить</button>
+                </div>
+                <div id="anagramResult" class="result-message"></div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>© 2026 АНО «Центр нейро-контурного управления»</p>
+            <p style="margin-top: 4px;">
+                <a href="business-landing.html">Лендинг</a> ·
+                <a href="business-presentation.html">Презентация</a> ·
+                <a href="diagnostic.html">Диагностика</a> ·
+                <a href="consolidation.html">Закрепление</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // ===================================================================
+        // БАЗА ТЕРМИНОВ (используется в обеих играх)
+        // ===================================================================
+        const TERMS = [
+            { word: 'МОТИВ', def: 'Внутреннее побуждение к действию' },
+            { word: 'БАЛЛЫ', def: 'Единицы начисления в системе мотивации' },
+            { word: 'АУДИТ', def: 'Проверка системы на соответствие принципам' },
+            { word: 'РИТУАЛ', def: 'Регулярная практика признания и рефлексии' },
+            { word: 'СТИМУЛ', def: 'Побудительный фактор, запускающий действие' },
+            { word: 'КОНТУР', def: 'Часть системы (внешний или внутренний)' },
+            { word: 'ПРЕМИЯ', def: 'Денежное вознаграждение по итогам периода' },
+            { word: 'ДОФАМИН', def: 'Нейромедиатор, отвечающий за ожидание награды' },
+            { word: 'ОКСИТОЦИН', def: 'Нейропептид, укрепляющий социальные связи' },
+            { word: 'ГЕЙМИФИКАЦИЯ', def: 'Применение игровых механик в неигровых процессах' }
+        ];
+
+        // ===================================================================
+        // 1. ВИКТОРИНА
+        // ===================================================================
+        (function() {
+            const questions = [
+                { q: 'Что такое внешний материальный контур?',
+                    options: ['Система ритуалов признания', 'Автоматическая конвертация достижений в деньги',
+                        'Дерево навыков', 'Горизонтальное признание'
+                    ],
+                    answer: 1 },
+                { q: 'Сколько принципов балансировки предлагается в нейро-контурной экономике?',
+                    options: ['5', '8', '10', '12'], answer: 1 },
+                { q: 'Какой нейромедиатор активируется в момент ожидания награды?',
+                    options: ['Серотонин', 'Окситоцин', 'Дофамин', 'Кортизол'], answer: 2 },
+                { q: 'Что такое «эффект сверхоправдания»?',
+                    options: ['Переоценка собственных способностей', 'Подавление внутренней мотивации внешними стимулами',
+                        'Завышение требований к себе', 'Игнорирование обратной связи'
+                    ],
+                    answer: 1 },
+                { q: 'Какой гормон укрепляет социальные связи и доверие?',
+                    options: ['Дофамин', 'Окситоцин', 'Адреналин', 'Кортизол'], answer: 1 },
+                { q: 'Что такое «цифровой паспорт компетенций»?',
+                    options: ['Электронный профиль с навыками и достижениями', 'Паспорт гражданина РФ',
+                        'Документ об образовании', 'Сертификат о повышении квалификации'
+                    ],
+                    answer: 0 },
+                { q: 'Какой принцип запрещает штрафы и негативное подкрепление?',
+                    options: ['Принцип прозрачности', 'Принцип исключения штрафов', 'Принцип добровольности',
+                        'Принцип адаптивной сложности'
+                    ],
+                    answer: 1 },
+                { q: 'Что такое «горизонтальное признание»?', options: ['Похвала от руководства',
+                        'Перевод баллов коллегам за помощь', 'Публичное награждение', 'Анонимное голосование'
+                    ],
+                    answer: 1 },
+                { q: 'Какой период рекомендуется для ротации игровых механик?',
+                    options: ['1–3 месяца', '6–12 месяцев', '2 года', 'По желанию сотрудника'
+                    ],
+                    answer: 1 },
+                { q: 'Что измеряет индекс зрелости профиля (PMI)?',
+                    options: ['Уровень зарплаты', 'Качество цифрового паспорта', 'Количество выполненных задач',
+                        'Стаж работы'
+                    ],
+                    answer: 1 }
+            ];
+
+            const container = document.getElementById('quiz-container');
+            let userAnswers = new Array(questions.length).fill(null);
+
+            function renderQuiz() {
+                container.innerHTML = questions.map((item, idx) => `
+                    <div class="quiz-question" data-q="${idx}">
+                        <div class="q-text">${idx+1}. ${item.q}</div>
+                        <div class="quiz-options">
+                            ${item.options.map((opt, optIdx) => `
+                                <label data-opt="${optIdx}" class="quiz-opt">
+                                    <input type="radio" name="q${idx}" value="${optIdx}" />
+                                    ${opt}
+                                </label>
+                            `).join('')}
+                        </div>
+                        <div class="quiz-result" id="qresult-${idx}"></div>
+                    </div>
+                `).join('');
+
+                userAnswers.fill(null);
+                container.querySelectorAll('input[type="radio"]').forEach(inp => {
+                    inp.addEventListener('change', function() {
+                        const qIdx = parseInt(this.name.replace('q', ''));
+                        userAnswers[qIdx] = parseInt(this.value);
+                        const parent = this.closest('.quiz-question');
+                        parent.querySelectorAll('.quiz-opt').forEach(l => {
+                            l.classList.remove('correct-answer', 'wrong-answer', 'disabled');
+                        });
+                        document.getElementById('qresult-' + qIdx).textContent = '';
+                        document.getElementById('quizResult').textContent = '';
+                    });
+                });
+            }
+
+            renderQuiz();
+
+            document.getElementById('checkQuiz').addEventListener('click', function() {
+                let correct = 0;
+                let allAnswered = true;
+                questions.forEach((item, idx) => {
+                    const resultDiv = document.getElementById('qresult-' + idx);
+                    const labels = container.querySelectorAll(`[data-q="${idx}"] .quiz-opt`);
+                    const selected = userAnswers[idx];
+                    if (selected === null) {
+                        allAnswered = false;
+                        resultDiv.innerHTML = '<span class="error">❌ Не выбран ответ</span>';
+                        return;
+                    }
+                    const isCorrect = (selected === item.answer);
+                    if (isCorrect) correct++;
+                    labels.forEach((label, optIdx) => {
+                        label.classList.remove('correct-answer', 'wrong-answer', 'disabled');
+                        if (optIdx === item.answer) {
+                            label.classList.add('correct-answer');
+                        } else if (optIdx === selected && !isCorrect) {
+                            label.classList.add('wrong-answer');
+                        }
+                        label.classList.add('disabled');
+                    });
+                    resultDiv.innerHTML = isCorrect ?
+                        '<span class="success">✅ Верно</span>' :
+                        '<span class="error">❌ Неверно</span>';
+                });
+
+                const msg = document.getElementById('quizResult');
+                if (!allAnswered) {
+                    msg.innerHTML = '<span class="error">❌ Ответьте на все вопросы.</span>';
+                    return;
+                }
+                msg.innerHTML = `<span class="success">🎉 Правильных ответов: ${correct} из ${questions.length}</span>`;
+            });
+
+            document.getElementById('resetQuiz').addEventListener('click', function() {
+                renderQuiz();
+                document.getElementById('quizResult').textContent = '';
+            });
+        })();
+
+        // ===================================================================
+        // 2. АНАГРАММЫ
+        // ===================================================================
+        (function() {
+            const anagrams = TERMS.map(t => ({
+                word: t.word,
+                def: t.def,
+                scrambled: t.word.split('').sort(() => Math.random() - 0.5).join('')
+            }));
+
+            const container = document.getElementById('anagram-container');
+            let inputs = [];
+
+            function renderAnagrams() {
+                container.innerHTML = anagrams.map((item, idx) => `
+                    <div class="anagram-item" data-idx="${idx}">
+                        <span class="scrambled">${item.scrambled}</span>
+                        <span class="def">${item.def}</span>
+                        <input type="text" placeholder="Введите слово" class="anagram-input" data-idx="${idx}" />
+                        <span class="status" id="astatus-${idx}">⬜</span>
+                    </div>
+                `).join('');
+                inputs = container.querySelectorAll('.anagram-input');
+                inputs.forEach(inp => {
+                    inp.addEventListener('input', function() {
+                        const idx = parseInt(this.dataset.idx);
+                        this.classList.remove('correct', 'wrong');
+                        document.getElementById('astatus-' + idx).textContent = '⬜';
+                        document.getElementById('anagramResult').textContent = '';
+                    });
+                });
+            }
+
+            renderAnagrams();
+
+            document.getElementById('checkAnagram').addEventListener('click', function() {
+                let correct = 0;
+                inputs.forEach(inp => {
+                    const idx = parseInt(inp.dataset.idx);
+                    const expected = anagrams[idx].word;
+                    const val = inp.value.trim().toUpperCase();
+                    const status = document.getElementById('astatus-' + idx);
+                    inp.classList.remove('correct', 'wrong');
+                    if (val === expected) {
+                        inp.classList.add('correct');
+                        status.textContent = '✅';
+                        correct++;
+                    } else if (val === '') {
+                        status.textContent = '⬜';
+                    } else {
+                        inp.classList.add('wrong');
+                        status.textContent = '❌';
+                    }
+                });
+                const total = anagrams.length;
+                const msg = document.getElementById('anagramResult');
+                if (correct === total) {
+                    msg.innerHTML = `<span class="success">🎉 Отлично! Все анаграммы разгаданы (${correct}/${total})</span>`;
+                } else {
+                    msg.innerHTML = `<span class="error">Правильных: ${correct}/${total}. Ошибки подсвечены красным.</span>`;
+                }
+            });
+
+            document.getElementById('resetAnagram').addEventListener('click', function() {
+                renderAnagrams();
+                document.getElementById('anagramResult').textContent = '';
+            });
+        })();
+
+        // ===================================================================
+        // Переключение вкладок
+        // ===================================================================
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const tab = this.dataset.tab;
+                document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+                document.getElementById('tab-' + tab).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
