@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Диагностика системы мотивации — MVP</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: #f5f5f7; color: #1a1a2e; min-height: 100vh; padding: 40px 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 32px; }
+        .header h1 { font-size: 28px; font-weight: 700; color: #1a1a2e; }
+        .header p { font-size: 16px; color: #6a6a8a; margin-top: 4px; }
+
+        .card { background: #fff; border-radius: 16px; padding: 24px 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border: 1px solid #eee; margin-bottom: 20px; }
+        .card h2 { font-size: 20px; font-weight: 600; margin-bottom: 12px; }
+        .card .sub { font-size: 14px; color: #6a6a8a; margin-bottom: 16px; }
+
+        .step { display: none; }
+        .step.active { display: block; }
+
+        .question { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f0ecf5; }
+        .question:last-child { border-bottom: 0; }
+        .question label { display: block; font-weight: 500; font-size: 15px; color: #1a1a2e; margin-bottom: 6px; }
+        .question .help { font-size: 13px; color: #8a8aaa; font-weight: 400; margin-top: 2px; }
+        .question select, .question input[type="text"] { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #ddd; font-size: 15px; background: #fafafa; transition: 0.2s; }
+        .question select:focus, .question input:focus { border-color: #6c3ce0; outline: none; background: #fff; }
+        .question .radio-group { display: flex; gap: 12px; flex-wrap: wrap; }
+        .question .radio-group label { display: flex; align-items: center; gap: 6px; font-weight: 400; font-size: 14px; color: #4a4a6a; cursor: pointer; padding: 6px 12px; border-radius: 30px; background: #f0ecf5; transition: 0.2s; }
+        .question .radio-group label:hover { background: #e4dcee; }
+        .question .radio-group input[type="radio"] { accent-color: #6c3ce0; }
+
+        .btn-group { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; justify-content: flex-end; }
+        .btn { display: inline-block; background: #6c3ce0; color: #fff; padding: 10px 28px; border-radius: 50px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; transition: 0.2s; }
+        .btn:hover { background: #5a2fc0; transform: translateY(-2px); }
+        .btn-secondary { background: #e8e4f0; color: #1a1a2e; }
+        .btn-secondary:hover { background: #ddd6e8; }
+        .btn-outline { background: transparent; color: #6c3ce0; border: 2px solid #6c3ce0; }
+        .btn-outline:hover { background: #6c3ce0; color: #fff; }
+
+        .progress { display: flex; gap: 8px; margin-bottom: 24px; justify-content: center; }
+        .progress .dot { width: 10px; height: 10px; border-radius: 50%; background: #d0c8dc; transition: 0.3s; }
+        .progress .dot.done { background: #6c3ce0; }
+        .progress .dot.current { background: #6c3ce0; box-shadow: 0 0 0 4px rgba(108,60,224,0.2); }
+
+        .result-box { background: #f0ecf5; border-radius: 12px; padding: 16px 20px; margin: 12px 0; border-left: 4px solid #6c3ce0; }
+        .result-box .big { font-size: 32px; font-weight: 700; color: #6c3ce0; }
+        .result-box .label { font-size: 14px; color: #4a4a6a; }
+
+        .badge { display: inline-block; padding: 2px 12px; border-radius: 30px; font-size: 12px; font-weight: 600; }
+        .badge-green { background: #d4edda; color: #155724; }
+        .badge-yellow { background: #fff3cd; color: #856404; }
+        .badge-red { background: #f8d7da; color: #721c24; }
+        .badge-purple { background: #e8e4f0; color: #6c3ce0; }
+
+        .report { background: #fff; border-radius: 16px; padding: 24px; border: 1px solid #6c3ce0; margin-top: 16px; }
+        .report h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+        .report .section { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #eee; }
+        .report .section:last-child { border-bottom: 0; }
+
+        .hidden { display: none; }
+
+        @media (max-width: 640px) {
+            .container { padding: 0; }
+            .card { padding: 16px; }
+            .question .radio-group { flex-direction: column; gap: 6px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app">
+
+    <!-- ═══ ШАПКА ═══ -->
+    <div class="header">
+        <h1>🧠 Диагностика системы мотивации</h1>
+        <p>5–15 минут · Автоматический подбор решения</p>
+    </div>
+
+    <!-- ═══ ПРОГРЕСС ═══ -->
+    <div class="progress" id="progress">
+        <span class="dot current" data-step="0"></span>
+        <span class="dot" data-step="1"></span>
+        <span class="dot" data-step="2"></span>
+        <span class="dot" data-step="3"></span>
+    </div>
+
+    <!-- ═══ СТЕП 1: ЭКСПРЕСС-ДИАГНОСТИКА ═══ -->
+    <div class="step active" data-step="0">
+        <div class="card">
+            <h2>Экспресс-диагностика</h2>
+            <p class="sub">10 вопросов, чтобы понять, есть ли проблема</p>
+
+            <div id="express-questions"></div>
+
+            <div class="btn-group">
+                <button class="btn" onclick="calculateExpress()">Рассчитать →</button>
+            </div>
+
+            <div id="express-result" class="hidden" style="margin-top: 16px;"></div>
+        </div>
+    </div>
+
+    <!-- ═══ СТЕП 2: УГЛУБЛЁННАЯ ДИАГНОСТИКА ═══ -->
+    <div class="step" data-step="1">
+        <div class="card">
+            <h2>Углублённая диагностика</h2>
+            <p class="sub">Для точного подбора варианта</p>
+
+            <div id="deep-questions"></div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToStep(0)">← Назад</button>
+                <button class="btn" onclick="calculateDeep()">Рассчитать →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ СТЕП 3: РЕЗУЛЬТАТЫ ═══ -->
+    <div class="step" data-step="2">
+        <div class="card">
+            <h2>Результаты диагностики</h2>
+            <p class="sub">Баллы по трём вариантам</p>
+
+            <div id="scores"></div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToStep(1)">← Назад</button>
+                <button class="btn" onclick="generateReport()">📄 Сгенерировать отчёт</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ СТЕП 4: ОТЧЁТ ═══ -->
+    <div class="step" data-step="3">
+        <div class="card">
+            <h2>Готовый отчёт</h2>
+            <p class="sub">Полное описание решения</p>
+
+            <div id="report-container"></div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToStep(2)">← Назад</button>
+                <button class="btn btn-outline" onclick="downloadReport()">⬇ Скачать отчёт</button>
+                <button class="btn" onclick="resetAll()">🔄 Начать заново</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ ФУТЕР ═══ -->
+    <div style="text-align: center; font-size: 13px; color: #8a8aaa; margin-top: 24px;">
+        АНО «Центр нейро-контурного управления» · 2026
+    </div>
+
+</div>
+
+<script>
+    // ══════════════════════════════════════════════════
+    // 1. ДАННЫЕ
+    // ══════════════════════════════════════════════════
+
+    const expressQuestions = [
+        { id: 'e1', text: 'Текучка кадров за последний год', options: ['<5%', '5–10%', '10–20%', '>20%'], scores: [0, 1, 2, 3] },
+        { id: 'e2', text: 'Уровень вовлечённости (eNPS)', options: ['>50', '30–50', '10–30', '<10'], scores: [0, 1, 2, 3] },
+        { id: 'e3', text: 'Как часто сотрудники получают обратную связь?', options: ['Еженедельно', 'Ежемесячно', 'Раз в квартал', 'Реже'], scores: [0, 1, 2, 3] },
+        { id: 'e4', text: 'Есть ли понимание связи вклада и вознаграждения?', options: ['Да, чёткое', 'Частичное', 'Скорее нет', 'Нет'], scores: [0, 1, 2, 3] },
+        { id: 'e5', text: 'Используются ли KPI/бонусы?', options: ['Да, работают хорошо', 'Да, но неэффективно', 'Частично', 'Нет'], scores: [0, 1, 2, 3] },
+        { id: 'e6', text: 'Есть ли практики признания (благодарности, доска почёта)?', options: ['Да, системно', 'Да, эпизодически', 'Редко', 'Нет'], scores: [0, 1, 2, 3] },
+        { id: 'e7', text: 'Уровень цифровизации HR-процессов', options: ['Высокий', 'Средний', 'Низкий', 'Отсутствует'], scores: [0, 1, 2, 3] },
+        { id: 'e8', text: 'Есть ли бюджет на изменения в мотивации?', options: ['Да, готовы инвестировать', 'В процессе согласования', 'Скорее нет', 'Нет'], scores: [0, 1, 2, 3] },
+        { id: 'e9', text: 'Готовы ли руководители к изменениям?', options: ['Полностью готовы', 'Частично', 'Скорее нет', 'Нет'], scores: [0, 1, 2, 3] },
+        { id: 'e10', text: 'Хотите ли вы получить дорожную карту?', options: ['Да', 'Нет'], scores: [0, 1] },
+    ];
+
+    const deepQuestions = [
+        // Раздел А
+        { id: 'd1', text: 'Количество сотрудников', options: ['<50', '50–200', '200–1000', '>1000'], scores: [0, 1, 2, 3] },
+        { id: 'd2', text: 'Отрасль', options: ['IT/технологии', 'Финансы/банки', 'Производство', 'Ритейл/услуги', 'Образование/наука', 'Госсектор'], scores: [0, 1, 1, 1, 2, 2] },
+        { id: 'd3', text: 'Есть ли отдел HR/управления персоналом?', options: ['Да, полноценный', 'Да, но маленький', 'Нет'], scores: [0, 1, 2] },
+        { id: 'd4', text: 'Бюджет на HR-инструменты в год', options: ['>5 млн руб.', '1–5 млн руб.', '<1 млн руб.', '0'], scores: [0, 1, 2, 3] },
+        // Раздел Б
+        { id: 'd5', text: 'Как часто выплачиваются премии?', options: ['Ежемесячно', 'Ежеквартально', 'Раз в полгода', 'Раз в год'], scores: [0, 1, 2, 3] },
+        { id: 'd6', text: 'Насколько прозрачна система начисления бонусов?', options: ['Полностью прозрачна', 'Частично', 'Непрозрачна'], scores: [0, 1, 2] },
+        { id: 'd7', text: 'Используются ли штрафы/депремирование?', options: ['Нет', 'Да, редко', 'Да, часто'], scores: [0, 1, 2] },
+        { id: 'd8', text: 'Есть ли система нематериального признания?', options: ['Да, системная', 'Да, эпизодическая', 'Нет'], scores: [0, 1, 2] },
+        // Раздел В
+        { id: 'd9', text: 'Готовы ли руководители обучаться новым подходам?', options: ['Да', 'Частично', 'Нет'], scores: [0, 1, 2] },
+        { id: 'd10', text: 'Есть ли внутренние ресурсы для внедрения (IT-команда, проектный офис)?', options: ['Да', 'Частично', 'Нет'], scores: [0, 1, 2] },
+        { id: 'd11', text: 'Готовы ли выделить бюджет на консультанта?', options: ['Да', 'Частично', 'Нет'], scores: [0, 1, 2] },
+        // Раздел Г
+        { id: 'd12', text: 'Используются ли Jira, Git, CRM или аналоги?', options: ['Да, все', 'Частично', 'Нет'], scores: [0, 1, 2] },
+        { id: 'd13', text: 'Есть ли API для интеграции?', options: ['Да', 'Частично', 'Нет'], scores: [0, 1, 2] },
+        { id: 'd14', text: 'Есть ли команда разработчиков, готовая к интеграции?', options: ['Да', 'Частично', 'Нет'], scores: [0, 1, 2] },
+    ];
+
+    // ══════════════════════════════════════════════════
+    // 2. ИНИЦИАЛИЗАЦИЯ ФОРМ
+    // ══════════════════════════════════════════════════
+
+    function buildQuestions(containerId, questions, prefix) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = questions.map((q, i) => `
+            <div class="question">
+                <label>${i+1}. ${q.text}</label>
+                <select id="${prefix}_${q.id}" data-id="${q.id}">
+                    ${q.options.map((opt, j) => `<option value="${j}">${opt}</option>`).join('')}
+                </select>
+            </div>
+        `).join('');
+    }
+
+    buildQuestions('express-questions', expressQuestions, 'e');
+    buildQuestions('deep-questions', deepQuestions, 'd');
+
+    // ══════════════════════════════════════════════════
+    // 3. НАВИГАЦИЯ
+    // ══════════════════════════════════════════════════
+
+    function goToStep(n) {
+        document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+        document.querySelector(`.step[data-step="${n}"]`).classList.add('active');
+        document.querySelectorAll('.progress .dot').forEach((dot, i) => {
+            dot.classList.toggle('current', i === n);
+            dot.classList.toggle('done', i < n);
+        });
+    }
+
+    // ══════════════════════════════════════════════════
+    // 4. ЭКСПРЕСС-ДИАГНОСТИКА
+    // ══════════════════════════════════════════════════
+
+    function getValues(prefix, ids) {
+        return ids.map(id => {
+            const el = document.getElementById(`${prefix}_${id}`);
+            return el ? parseInt(el.value) : 0;
+        });
+    }
+
+    function calculateExpress() {
+        const ids = expressQuestions.map(q => q.id);
+        const scores = getValues('e', ids);
+        const total = scores.reduce((a, b) => a + b, 0);
+        const maxScore = expressQuestions.length * 3; // примерно 30
+
+        const resultDiv = document.getElementById('express-result');
+        resultDiv.classList.remove('hidden');
+
+        let level, color, recommendation;
+        if (total <= 10) {
+            level = 'Низкий уровень проблем';
+            color = 'badge-green';
+            recommendation = 'Проблемы незначительны. Рекомендуем мониторинг.';
+        } else if (total <= 20) {
+            level = 'Средний уровень проблем';
+            color = 'badge-yellow';
+            recommendation = 'Есть системные проблемы. Рекомендуем углублённую диагностику.';
+        } else {
+            level = 'Высокий уровень проблем';
+            color = 'badge-red';
+            recommendation = 'Кризис мотивации. Рекомендуем немедленный аудит.';
+        }
+
+        resultDiv.innerHTML = `
+            <div class="result-box">
+                <div class="big">${total}</div>
+                <div class="label">из ${maxScore} баллов</div>
+                <div style="margin-top: 8px;"><span class="badge ${color}">${level}</span></div>
+                <p style="margin-top: 8px; color: #4a4a6a;">${recommendation}</p>
+            </div>
+            <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn btn-secondary" onclick="goToStep(0)">↻ Пройти заново</button>
+                <button class="btn" onclick="goToStep(1)">📊 Перейти к углублённой диагностике</button>
+            </div>
+        `;
+
+        // Сохраняем результат для отчёта
+        localStorage.setItem('expressTotal', total);
+        localStorage.setItem('expressLevel', level);
+    }
+
+    // ══════════════════════════════════════════════════
+    // 5. УГЛУБЛЁННАЯ ДИАГНОСТИКА
+    // ══════════════════════════════════════════════════
+
+    function calculateDeep() {
+        const ids = deepQuestions.map(q => q.id);
+        const scores = getValues('d', ids);
+
+        // Разбиваем по разделам
+        const A = scores.slice(0, 4);   // d1–d4
+        const B = scores.slice(4, 8);   // d5–d8
+        const C = scores.slice(8, 11);  // d9–d11
+        const G = scores.slice(11, 14); // d12–d14
+
+        // ---- Вариант 1: Аудит ----
+        const needAudit = (B.reduce((a,b)=>a+b,0) / 8) * 0.4 +
+                          (C.reduce((a,b)=>a+b,0) / 6) * 0.3 +
+                          ((A[2] + A[3]) / 5) * 0.3;
+        const readinessAudit = 1 - (C.reduce((a,b)=>a+b,0) / 6);
+        const priorityAudit = needAudit * readinessAudit;
+
+        // ---- Вариант 2: Облегчённый контур ----
+        const needSoft = 0.4 * (1 - B[3]/2) + 0.3 * (1 - C[0]/2) + 0.3 * (1 - A[3]/3);
+        const readinessSoft = ((1 - C[0]/2) + (1 - C[2]/2)) / 2;
+        const prioritySoft = needSoft * readinessSoft;
+
+        // ---- Вариант 3: Гибкий запуск ----
+        const needDigital = 0.4 * (1 - G.reduce((a,b)=>a+b,0)/6) +
+                            0.3 * (B[0] >= 2 ? 1 : 0) +
+                            0.3 * (1 - (A[3] + C[2]) / 6);
+        const readinessDigital = ( (1 - G[0]/2) + (1 - G[1]/2) + (1 - G[2]/2) ) / 3;
+        const priorityDigital = needDigital * readinessDigital;
+
+        // Сохраняем
+        const results = {
+            audit: { need: needAudit, readiness: readinessAudit, priority: priorityAudit },
+            soft: { need: needSoft, readiness: readinessSoft, priority: prioritySoft },
+            digital: { need: needDigital, readiness: readinessDigital, priority: priorityDigital },
+        };
+        localStorage.setItem('deepResults', JSON.stringify(results));
+
+        // Отображаем
+        showScores(results);
+        goToStep(2);
+    }
+
+    // ══════════════════════════════════════════════════
+    // 6. ОТОБРАЖЕНИЕ РЕЗУЛЬТАТОВ
+    // ══════════════════════════════════════════════════
+
+    function showScores(results) {
+        const container = document.getElementById('scores');
+        container.innerHTML = `
+            <div class="grid-3" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 12px;">
+                <div class="card" style="border-top: 4px solid #00b4d8;">
+                    <h3>🔍 Аудит</h3>
+                    <div class="big" style="font-size: 32px; color: #6c3ce0;">${(results.audit.priority * 100).toFixed(0)}%</div>
+                    <div style="font-size: 13px; color: #6a6a8a;">Необходимость: ${(results.audit.need * 100).toFixed(0)}% · Готовность: ${(results.audit.readiness * 100).toFixed(0)}%</div>
+                </div>
+                <div class="card" style="border-top: 4px solid #6c3ce0;">
+                    <h3>🧠 Облегчённый</h3>
+                    <div class="big" style="font-size: 32px; color: #6c3ce0;">${(results.soft.priority * 100).toFixed(0)}%</div>
+                    <div style="font-size: 13px; color: #6a6a8a;">Необходимость: ${(results.soft.need * 100).toFixed(0)}% · Готовность: ${(results.soft.readiness * 100).toFixed(0)}%</div>
+                </div>
+                <div class="card" style="border-top: 4px solid #ff6b8a; border: 2px solid #6c3ce0;">
+                    <h3>🚀 Гибкий запуск</h3>
+                    <div class="big" style="font-size: 32px; color: #6c3ce0;">${(results.digital.priority * 100).toFixed(0)}%</div>
+                    <div style="font-size: 13px; color: #6a6a8a;">Необходимость: ${(results.digital.need * 100).toFixed(0)}% · Готовность: ${(results.digital.readiness * 100).toFixed(0)}%</div>
+                </div>
+            </div>
+            <div style="margin-top: 16px; background: #f0ecf5; border-radius: 12px; padding: 16px; border-left: 4px solid #6c3ce0;">
+                <strong>Рекомендация:</strong>
+                ${getRecommendation(results)}
+            </div>
+        `;
+    }
+
+    function getRecommendation(results) {
+        const p = results;
+        const max = Math.max(p.audit.priority, p.soft.priority, p.digital.priority);
+
+        if (max < 0.4) {
+            return 'Рекомендуем начать с обучения руководителей и создания проектной группы. Без этого внедрение будет сложным.';
+        }
+
+        if (p.audit.priority === max && p.audit.priority > 0.5) {
+            return '🔍 Аудит — оптимальный старт. Получите чёткую картину текущей системы и точки роста.';
+        }
+        if (p.soft.priority === max && p.soft.priority > 0.5) {
+            return '🧠 Облегчённый контур — внедрение ритуалов и признания без IT. Хороший старт для подготовки к автоматизации.';
+        }
+        if (p.digital.priority === max && p.digital.priority > 0.5) {
+            return '🚀 Гибкий запуск — пилот на одной команде с автоматизацией. Требует IT-инфраструктуры и бюджета.';
+        }
+
+        return 'Рекомендуем комбинированный подход: начать с аудита, затем выбрать следующий шаг.';
+    }
+
+    // ══════════════════════════════════════════════════
+    // 7. ГЕНЕРАЦИЯ ОТЧЁТА
+    // ══════════════════════════════════════════════════
+
+    function generateReport() {
+        const results = JSON.parse(localStorage.getItem('deepResults'));
+        if (!results) {
+            alert('Сначала пройдите диагностику!');
+            return;
+        }
+
+        const expressTotal = localStorage.getItem('expressTotal') || '—';
+        const expressLevel = localStorage.getItem('expressLevel') || '—';
+
+        const reportHTML = `
+            <div class="report" id="report-content">
+                <div style="text-align: center; border-bottom: 2px solid #6c3ce0; padding-bottom: 12px; margin-bottom: 16px;">
+                    <h2 style="font-size: 24px;">Отчёт по диагностике системы мотивации</h2>
+                    <p style="color: #6a6a8a;">АНО «Центр нейро-контурного управления» · ${new Date().toLocaleDateString('ru-RU')}</p>
+                </div>
+
+                <div class="section">
+                    <h3>📊 Результаты экспресс-диагностики</h3>
+                    <p><strong>Баллы:</strong> ${expressTotal} · <strong>Уровень:</strong> ${expressLevel}</p>
+                </div>
+
+                <div class="section">
+                    <h3>📈 Результаты углублённой диагностики</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 8px;">
+                        <div><strong>Аудит:</strong> ${(results.audit.priority * 100).toFixed(0)}%</div>
+                        <div><strong>Облегчённый:</strong> ${(results.soft.priority * 100).toFixed(0)}%</div>
+                        <div><strong>Гибкий запуск:</strong> ${(results.digital.priority * 100).toFixed(0)}%</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>🎯 Рекомендованный вариант</h3>
+                    <p>${getRecommendation(results)}</p>
+                </div>
+
+                <div class="section">
+                    <h3>📋 Что входит</h3>
+                    ${getVariantDescription(results)}
+                </div>
+
+                <div class="section">
+                    <h3>🗓️ Дорожная карта</h3>
+                    ${getRoadmap(results)}
+                </div>
+
+                <div class="section">
+                    <h3>💰 Бюджетная калькуляция</h3>
+                    ${getBudget(results)}
+                </div>
+
+                <div class="section" style="border-bottom: 0;">
+                    <h3>📞 Следующие шаги</h3>
+                    <p>1. Свяжитесь с нами по email: <a href="mailto:centrncm@yandex.ru">centrncm@yandex.ru</a></p>
+                    <p>2. Мы проведём вводную консультацию (бесплатно, 30 минут)</p>
+                    <p>3. Подготовим детальное коммерческое предложение</p>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('report-container').innerHTML = reportHTML;
+        goToStep(3);
+    }
+
+    function getVariantDescription(results) {
+        const max = Math.max(results.audit.priority, results.soft.priority, results.digital.priority);
+        if (results.audit.priority === max && results.audit.priority > 0.5) {
+            return `
+                <p><strong>Аудит (2–3 недели)</strong></p>
+                <ul style="padding-left: 20px; color: #4a4a6a;">
+                    <li>Анализ текущей системы мотивации</li>
+                    <li>Анонимный опрос сотрудников</li>
+                    <li>Интервью с руководителями</li>
+                    <li>Отчёт с рекомендациями</li>
+                </ul>
+            `;
+        }
+        if (results.soft.priority === max && results.soft.priority > 0.5) {
+            return `
+                <p><strong>Облегчённый контур (2–3 месяца)</strong></p>
+                <ul style="padding-left: 20px; color: #4a4a6a;">
+                    <li>Проектирование ритуалов признания</li>
+                    <li>Внедрение горизонтального признания</li>
+                    <li>Создание дерева навыков</li>
+                    <li>Обучение руководителей и сотрудников</li>
+                </ul>
+            `;
+        }
+        if (results.digital.priority === max && results.digital.priority > 0.5) {
+            return `
+                <p><strong>Гибкий запуск (6–9 месяцев)</strong></p>
+                <ul style="padding-left: 20px; color: #4a4a6a;">
+                    <li>Проектирование архитектуры под вашу компанию</li>
+                    <li>Разработка MVP (личный кабинет, API-интеграция)</li>
+                    <li>Пилот на одной команде</li>
+                    <li>Оценка и масштабирование</li>
+                </ul>
+            `;
+        }
+        return '<p>Рекомендуется комбинированный подход: начать с аудита.</p>';
+    }
+
+    function getRoadmap(results) {
+        const max = Math.max(results.audit.priority, results.soft.priority, results.digital.priority);
+        if (results.audit.priority === max && results.audit.priority > 0.5) {
+            return `
+                <ul style="padding-left: 20px; color: #4a4a6a;">
+                    <li><strong>Неделя 1:</strong> Сбор данных, анализ KPI</li>
+                    <li><strong>Неделя 2:</strong> Опросы, интервью</li>
+                    <li><strong>Неделя 3:</strong> Подготовка отчёта, презентация</li>
+                </ul>
+            `;
+        }
+        if (results.soft.priority === max && results.soft.priority > 0.5) {
+            return `
+                <ul style="padding-left: 20px; color: #4a4a6a;">
+                    <li><strong>Месяц 1:</strong> Проектирование ритуалов и дерева навыков</li>
+                    <li><strong>Месяц 2:</strong> Обучение руководителей, запуск пилота</li>
+                    <li><strong>Месяц 3:</strong> Сбор обратной связи, калибровка</li>
+                </ul>
+            `;
+        }
+        if (results.digital.priority === max && results.digital.priority > 0.5) {
+            return `
+                <ul style="padding-left: 20px; color: #4a4a6a;">
+                    <li><strong>Месяцы 1–2:</strong> Проектирование и разработка MVP</li>
+                    <li><strong>Месяцы 3–6:</strong> Пилот на одной команде</li>
+                    <li><strong>Месяцы 7–9:</strong> Оценка, масштабирование</li>
+                </ul>
+            `;
+        }
+        return '<p>Начните с аудита, затем выберите следующий шаг.</p>';
+    }
+
+    function getBudget(results) {
+        const max = Math.max(results.audit.priority, results.soft.priority, results.digital.priority);
+        if (results.audit.priority === max && results.audit.priority > 0.5) {
+            return '<p><strong>Ориентировочная стоимость:</strong> 150–300 тыс. руб. (зависит от масштаба компании)</p>';
+        }
+        if (results.soft.priority === max && results.soft.priority > 0.5) {
+            return '<p><strong>Ориентировочная стоимость:</strong> 500 тыс. – 1,5 млн руб.</p>';
+        }
+        if (results.digital.priority === max && results.digital.priority > 0.5) {
+            return '<p><strong>Ориентировочная стоимость:</strong> 2–5 млн руб.</p>';
+        }
+        return '<p><strong>Рекомендация:</strong> начните с аудита (150–300 тыс. руб.)</p>';
+    }
+
+    // ══════════════════════════════════════════════════
+    // 8. СКАЧИВАНИЕ ОТЧЁТА
+    // ══════════════════════════════════════════════════
+
+    function downloadReport() {
+        const content = document.getElementById('report-content');
+        if (!content) {
+            alert('Сначала сгенерируйте отчёт!');
+            return;
+        }
+
+        // Извлекаем текст
+        const text = content.innerText + '\n\n' +
+            '---\n' +
+            'Сгенерировано автоматически, АНО «Центр нейро-контурного управления»\n' +
+            new Date().toLocaleString('ru-RU');
+
+        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `Отчёт_${new Date().toISOString().slice(0,10)}.txt`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+    }
+
+    // ══════════════════════════════════════════════════
+    // 9. СБРОС
+    // ══════════════════════════════════════════════════
+
+    function resetAll() {
+        localStorage.clear();
+        location.reload();
+    }
+
+    // ══════════════════════════════════════════════════
+    // 10. ВОССТАНОВЛЕНИЕ СОСТОЯНИЯ
+    // ══════════════════════════════════════════════════
+
+    // Если есть результаты, показываем их
+    document.addEventListener('DOMContentLoaded', () => {
+        const saved = localStorage.getItem('deepResults');
+        if (saved) {
+            try {
+                const results = JSON.parse(saved);
+                showScores(results);
+                // Показываем шаг 2, но не переключаем автоматически
+            } catch (e) {}
+        }
+    });
+
+</script>
+
+</body>
+</html>
