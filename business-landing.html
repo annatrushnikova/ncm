@@ -6,51 +6,48 @@
     <title>Нейро-контурное управление — лендинг</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', -apple-system, sans-serif; background: #0b0b1a; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; position: relative; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: #0b0b1a; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 30px 15px; position: relative; }
 
-        .bg-glow { position: fixed; width: 600px; height: 600px; border-radius: 50%; filter: blur(120px); opacity: 0.3; z-index: 0; }
-        .glow-1 { top: -200px; right: -200px; background: #6c3ce0; }
-        .glow-2 { bottom: -200px; left: -200px; background: #00b4d8; }
+        .bg-glow { position: fixed; width: 500px; height: 500px; border-radius: 50%; filter: blur(120px); opacity: 0.25; z-index: 0; }
+        .glow-1 { top: -150px; right: -150px; background: #6c3ce0; }
+        .glow-2 { bottom: -150px; left: -150px; background: #00b4d8; }
 
-        .container { position: relative; z-index: 1; max-width: 1200px; width: 100%; }
+        .container { position: relative; z-index: 1; max-width: 1100px; width: 100%; }
 
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 32px; align-items: stretch; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 24px; align-items: stretch; }
 
-        .left-col { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 28px 24px; border: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(4px); display: flex; flex-direction: column; justify-content: center; }
-        .left-col .badge { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #ff6b8a; margin-bottom: 8px; }
-        .left-col h2 { font-size: 22px; font-weight: 600; color: #f0f0ff; margin-bottom: 12px; }
-        .left-col .problem-item { display: flex; align-items: center; gap: 12px; color: #b0b0d0; font-size: 14px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .left-col { background: rgba(255,255,255,0.03); border-radius: 16px; padding: 24px 20px; border: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(4px); display: flex; flex-direction: column; justify-content: center; }
+        .left-col .badge { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #ff6b8a; margin-bottom: 6px; }
+        .left-col h2 { font-size: 20px; font-weight: 600; color: #f0f0ff; margin-bottom: 10px; }
+        .left-col .problem-item { display: flex; align-items: center; gap: 10px; color: #b0b0d0; font-size: 13px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
         .left-col .problem-item:last-child { border-bottom: 0; }
-        .left-col .problem-item .icon { font-size: 18px; flex-shrink: 0; }
+        .left-col .problem-item .icon { font-size: 16px; flex-shrink: 0; }
 
-        .center-col { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px 0; }
-        .center-col .badge { display: inline-block; background: rgba(255,255,255,0.06); backdrop-filter: blur(8px); padding: 4px 16px; border-radius: 40px; font-size: 11px; color: #a0a0c0; border: 1px solid rgba(255,255,255,0.06); margin-bottom: 16px; }
-        .center-col h1 { font-size: clamp(30px, 3.4vw, 44px); font-weight: 700; line-height: 1.15; background: linear-gradient(135deg, #ffffff 0%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .center-col .sub { font-size: clamp(14px, 1.2vw, 17px); color: #a0a0c0; margin-top: 8px; max-width: 360px; margin-left: auto; margin-right: auto; }
-        .center-col .principle-list { margin-top: 16px; text-align: left; font-size: 13px; color: #b0b0d0; }
-        .center-col .principle-list li { padding: 4px 0; list-style: none; }
-        .center-col .principle-list li::before { content: "▸ "; color: #6c3ce0; }
+        .center-col { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 16px 0; }
+        .center-col .badge { display: inline-block; background: rgba(255,255,255,0.06); backdrop-filter: blur(8px); padding: 4px 14px; border-radius: 40px; font-size: 10px; color: #a0a0c0; border: 1px solid rgba(255,255,255,0.06); margin-bottom: 12px; }
+        .center-col h1 { font-size: clamp(22px, 2.8vw, 34px); font-weight: 700; line-height: 1.2; color: #f0f0ff; max-width: 500px; margin-left: auto; margin-right: auto; }
 
-        .right-col { background: linear-gradient(145deg, rgba(108,60,224,0.12), rgba(79,70,229,0.06)); border-radius: 20px; padding: 28px 24px; border: 1px solid rgba(108,60,224,0.2); backdrop-filter: blur(4px); display: flex; flex-direction: column; justify-content: center; }
-        .right-col .badge { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #a78bfa; margin-bottom: 8px; }
-        .right-col h2 { font-size: 22px; font-weight: 600; color: #f0f0ff; margin-bottom: 6px; }
-        .right-col .sub-solution { font-size: 15px; color: #b0b0d0; margin-bottom: 16px; }
-        .right-col .solution-item { display: flex; align-items: center; gap: 10px; color: #c0c0e0; font-size: 14px; padding: 4px 0; }
-        .right-col .solution-item .icon { font-size: 16px; flex-shrink: 0; }
-        .right-col .btn-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
-        .right-col .btn { display: inline-block; background: linear-gradient(135deg, #6c3ce0, #4f46e5); color: #fff; padding: 12px 28px; border-radius: 50px; font-weight: 600; font-size: 15px; text-decoration: none; transition: all 0.3s; box-shadow: 0 8px 32px rgba(108, 60, 224, 0.3); border: none; cursor: pointer; text-align: center; }
-        .right-col .btn:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 12px 40px rgba(108, 60, 224, 0.5); }
+        .right-col { background: linear-gradient(145deg, rgba(108,60,224,0.10), rgba(79,70,229,0.04)); border-radius: 16px; padding: 24px 20px; border: 1px solid rgba(108,60,224,0.15); backdrop-filter: blur(4px); display: flex; flex-direction: column; justify-content: center; }
+        .right-col .badge { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #a78bfa; margin-bottom: 6px; }
+        .right-col h2 { font-size: 20px; font-weight: 600; color: #f0f0ff; margin-bottom: 4px; }
+        .right-col .solution-item { display: flex; gap: 8px; color: #c0c0e0; font-size: 13px; padding: 4px 0; line-height: 1.4; }
+        .right-col .solution-item .icon { font-size: 15px; flex-shrink: 0; margin-top: 2px; }
+        .right-col .btn-group { display: flex; flex-wrap: nowrap; gap: 8px; margin-top: 14px; justify-content: flex-start; }
+        .right-col .btn { display: inline-block; background: linear-gradient(135deg, #6c3ce0, #4f46e5); color: #fff; padding: 8px 16px; border-radius: 50px; font-weight: 600; font-size: 13px; text-decoration: none; transition: all 0.3s; box-shadow: 0 4px 16px rgba(108, 60, 224, 0.25); border: none; cursor: pointer; text-align: center; white-space: nowrap; }
+        .right-col .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(108, 60, 224, 0.4); }
         .right-col .btn-secondary { background: rgba(255,255,255,0.08); box-shadow: none; border: 1px solid rgba(255,255,255,0.1); }
         .right-col .btn-secondary:hover { background: rgba(255,255,255,0.15); }
 
-        .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; font-size: 12px; color: #555570; }
+        .footer { margin-top: 28px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; font-size: 12px; color: #555570; }
         .footer a { color: #8080a0; text-decoration: none; transition: 0.2s; }
         .footer a:hover { color: #a78bfa; }
 
         @media (max-width: 900px) {
-            .grid-3 { grid-template-columns: 1fr; gap: 24px; }
-            .center-col { order: -1; padding: 0 0 12px 0; }
-            .left-col, .right-col { padding: 20px; }
+            .grid-3 { grid-template-columns: 1fr; gap: 18px; }
+            .center-col { order: -1; padding: 0 0 8px 0; }
+            .left-col, .right-col { padding: 18px; }
+            .right-col .btn-group { flex-wrap: wrap; }
+            .right-col .btn { font-size: 12px; padding: 6px 14px; }
         }
     </style>
 </head>
@@ -61,7 +58,7 @@
 <div class="container">
     <div class="grid-3">
 
-        <!-- ═══ ЛЕВАЯ КОЛОНКА: ПРОБЛЕМА ═══ -->
+        <!-- ЛЕВАЯ КОЛОНКА -->
         <div class="left-col">
             <div class="badge">⛔ Проблема</div>
             <h2>Традиционные системы мотивации перестали работать</h2>
@@ -69,44 +66,37 @@
             <div class="problem-item"><span class="icon">📊</span> KPI не отражают реальный вклад, сотрудники выбирают лёгкие задачи</div>
             <div class="problem-item"><span class="icon">💰</span> Деньги перестали быть главным мотиватором</div>
             <div class="problem-item"><span class="icon">⏳</span> Обратная связь запаздывает, мозг не связывает действие и бонус</div>
-            <div class="problem-item"><span class="icon">🧩</span> HR-инструменты разрознены и не дают системы</div>
         </div>
 
-        <!-- ═══ ЦЕНТРАЛЬНАЯ КОЛОНКА: АРХИТЕКТУРА ═══ -->
+        <!-- ЦЕНТРАЛЬНАЯ КОЛОНКА -->
         <div class="center-col">
             <div class="badge">АНО «Центр нейро-контурного управления»</div>
-            <h1>Нейро-контурное<br>управление мотивацией</h1>
-            <p class="sub">Системная архитектура, объединяющая внешнее материальное и внутреннее психологическое подкрепление.</p>
-            <div style="margin: 12px 0; display: flex; flex-direction: column; gap: 4px; width: 100%; max-width: 280px;">
-                <div style="display: flex; justify-content: space-between; font-size: 13px; color: #c0c0e0; padding: 4px 8px; border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <h1>💡 Наш подход — методология нейро-контурной экономики, адаптируемая под вашу культуру и задачи</h1>
+            <div style="margin: 10px 0; display: flex; flex-direction: column; gap: 2px; width: 100%; max-width: 240px;">
+                <div style="display: flex; justify-content: space-between; font-size: 12px; color: #c0c0e0; padding: 3px 6px; border-bottom: 1px solid rgba(255,255,255,0.06);">
                     <span>⚡ Внешний контур</span><span style="color: #6c3ce0;">Топливо</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; font-size: 13px; color: #c0c0e0; padding: 4px 8px; border-bottom: 1px solid rgba(255,255,255,0.06);">
+                <div style="display: flex; justify-content: space-between; font-size: 12px; color: #c0c0e0; padding: 3px 6px; border-bottom: 1px solid rgba(255,255,255,0.06);">
                     <span>🧠 Внутренний контур</span><span style="color: #00b4d8;">Двигатель</span>
                 </div>
             </div>
-            <div class="principle-list">
-                <li><strong>8 принципов</strong> балансировки: разграничение, добровольность, позитив, прозрачность, смысл, признание, аудит, адаптация</li>
-                <li style="margin-top: 6px;">Адаптивная сложность: 5–7 действий → постепенное усложнение</li>
-            </div>
         </div>
 
-        <!-- ═══ ПРАВАЯ КОЛОНКА: РЕШЕНИЕ ═══ -->
-<div class="right-col">
-    <div class="badge">✅ Решение</div>
-    <h2>Три варианта внедрения</h2>
-    <p class="sub-solution">Под любой бюджет и уровень цифровизации.</p>
-    <div class="solution-item"><span class="icon">🔍</span> Аудит — ревизия системы, быстрые улучшения без изменений IT</div>
-    <div class="solution-item"><span class="icon">🧠</span> Облегчённый контур — ритуалы, дерево навыков, признание</div>
-    <div class="solution-item"><span class="icon">🚀</span> Гибкий запуск — пилот на одной команде с автоматизацией через API</div>
-    <div class="btn-group">
-        <a href="business-presentation.html" class="btn" target="_blank">📊 Презентация</a>
-        <a href="index.html" class="btn btn-secondary" target="_blank">🌐 Сайт центра</a>
-    </div>
-    <div style="margin-top: 12px;">
-        <a href="diagnostic.html" class="btn btn-secondary" style="display: inline-block; padding: 10px 28px; border-radius: 50px; background: #e8e4f0; color: #1a1a2e; text-decoration: none; font-weight: 600; font-size: 14px; transition: 0.2s; width: 100%; text-align: center;">🧠 Пройти диагностику</a>
-    </div>
-</div>
+        <!-- ПРАВАЯ КОЛОНКА -->
+        <div class="right-col">
+            <div class="badge">✅ Решение</div>
+            <h2>Три формата работы</h2>
+
+            <div class="solution-item"><span class="icon">🔍</span> <strong>Стратегическая диагностика</strong> — оценка зрелости, отчёт с рекомендациями</div>
+            <div class="solution-item"><span class="icon">🧠</span> <strong>Архитектура поведенческих контуров</strong> — проектирование под вашу специфику, обучение</div>
+            <div class="solution-item"><span class="icon">🚀</span> <strong>Корпоративная мастерская трансформации</strong> — командное обучение, прототип системы</div>
+
+            <div class="btn-group">
+                <a href="business-presentation.html" class="btn" target="_blank">📊 Презентация</a>
+                <a href="index.html" class="btn btn-secondary" target="_blank">🌐 Сайт центра</a>
+                <a href="diagnostic.html" class="btn btn-secondary" target="_blank">🧠 Диагностика</a>
+            </div>
+        </div>
 
     </div>
 
