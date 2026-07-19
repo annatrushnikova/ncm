@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Диагностика системы мотивации — MVP</title>
+    <title>Диагностика системы мотивации</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', -apple-system, sans-serif; background: #f5f5f7; color: #1a1a2e; min-height: 100vh; padding: 40px 20px; }
@@ -60,6 +60,14 @@
 
         .hidden { display: none; }
 
+        /* === Стили для печати PDF === */
+        @media print {
+            body * { visibility: hidden; }
+            #report-content, #report-content * { visibility: visible; }
+            #report-content { position: absolute; left: 0; top: 0; width: 100%; padding: 30px; }
+            .btn, .btn-group, .header, .progress, .footer { display: none !important; }
+        }
+
         @media (max-width: 640px) {
             .container { padding: 0; }
             .card { padding: 16px; }
@@ -71,13 +79,13 @@
 
 <div class="container" id="app">
 
-    <!-- ═══ ШАПКА ═══ -->
+    <!-- ШАПКА -->
     <div class="header">
         <h1>🧠 Диагностика системы мотивации</h1>
         <p>5–15 минут · Автоматический подбор решения</p>
     </div>
 
-    <!-- ═══ ПРОГРЕСС ═══ -->
+    <!-- ПРОГРЕСС -->
     <div class="progress" id="progress">
         <span class="dot current" data-step="0"></span>
         <span class="dot" data-step="1"></span>
@@ -85,7 +93,7 @@
         <span class="dot" data-step="3"></span>
     </div>
 
-    <!-- ═══ СТЕП 1: ЭКСПРЕСС-ДИАГНОСТИКА ═══ -->
+    <!-- СТЕП 1: ЭКСПРЕСС-ДИАГНОСТИКА -->
     <div class="step active" data-step="0">
         <div class="card">
             <h2>Экспресс-диагностика</h2>
@@ -101,7 +109,7 @@
         </div>
     </div>
 
-    <!-- ═══ СТЕП 2: УГЛУБЛЁННАЯ ДИАГНОСТИКА ═══ -->
+    <!-- СТЕП 2: УГЛУБЛЁННАЯ ДИАГНОСТИКА -->
     <div class="step" data-step="1">
         <div class="card">
             <h2>Углублённая диагностика</h2>
@@ -116,7 +124,7 @@
         </div>
     </div>
 
-    <!-- ═══ СТЕП 3: РЕЗУЛЬТАТЫ ═══ -->
+    <!-- СТЕП 3: РЕЗУЛЬТАТЫ -->
     <div class="step" data-step="2">
         <div class="card">
             <h2>Результаты диагностики</h2>
@@ -131,7 +139,7 @@
         </div>
     </div>
 
-    <!-- ═══ СТЕП 4: ОТЧЁТ ═══ -->
+    <!-- СТЕП 4: ОТЧЁТ -->
     <div class="step" data-step="3">
         <div class="card">
             <h2>Готовый отчёт</h2>
@@ -141,13 +149,15 @@
 
             <div class="btn-group">
                 <button class="btn btn-secondary" onclick="goToStep(2)">← Назад</button>
-                <button class="btn btn-outline" onclick="downloadReport()">⬇ Скачать отчёт</button>
+                <button class="btn btn-outline" onclick="downloadReport()">⬇ Скачать .txt</button>
+                <button class="btn btn-outline" onclick="printReport()">🖨 PDF (печать)</button>
+                <button class="btn btn-outline" onclick="downloadWord()">📄 Скачать .doc</button>
                 <button class="btn" onclick="resetAll()">🔄 Начать заново</button>
             </div>
         </div>
     </div>
 
-    <!-- ═══ ФУТЕР ═══ -->
+    <!-- ФУТЕР -->
     <div style="text-align: center; font-size: 13px; color: #8a8aaa; margin-top: 24px;">
         АНО «Центр нейро-контурного управления» · 2026
     </div>
@@ -273,7 +283,6 @@
             </div>
         `;
 
-        // Сохраняем результат для отчёта
         localStorage.setItem('expressTotal', total);
         localStorage.setItem('expressLevel', level);
     }
@@ -292,19 +301,19 @@
         const C = scores.slice(8, 11);  // d9–d11
         const G = scores.slice(11, 14); // d12–d14
 
-        // ---- Вариант 1: Аудит ----
+        // ---- Вариант 1: Стратегическая диагностика (аудит) ----
         const needAudit = (B.reduce((a,b)=>a+b,0) / 8) * 0.4 +
                           (C.reduce((a,b)=>a+b,0) / 6) * 0.3 +
                           ((A[2] + A[3]) / 5) * 0.3;
         const readinessAudit = 1 - (C.reduce((a,b)=>a+b,0) / 6);
         const priorityAudit = needAudit * readinessAudit;
 
-        // ---- Вариант 2: Облегчённый контур ----
+        // ---- Вариант 2: Архитектура поведенческих контуров (облегчённый) ----
         const needSoft = 0.4 * (1 - B[3]/2) + 0.3 * (1 - C[0]/2) + 0.3 * (1 - A[3]/3);
         const readinessSoft = ((1 - C[0]/2) + (1 - C[2]/2)) / 2;
         const prioritySoft = needSoft * readinessSoft;
 
-        // ---- Вариант 3: Гибкий запуск ----
+        // ---- Вариант 3: Корпоративная мастерская трансформации (гибкий запуск) ----
         const needDigital = 0.4 * (1 - G.reduce((a,b)=>a+b,0)/6) +
                             0.3 * (B[0] >= 2 ? 1 : 0) +
                             0.3 * (1 - (A[3] + C[2]) / 6);
@@ -325,7 +334,7 @@
     }
 
     // ══════════════════════════════════════════════════
-    // 6. ОТОБРАЖЕНИЕ РЕЗУЛЬТАТОВ
+    // 6. ОТОБРАЖЕНИЕ РЕЗУЛЬТАТОВ (ОБНОВЛЕННЫЕ НАЗВАНИЯ)
     // ══════════════════════════════════════════════════
 
     function showScores(results) {
@@ -333,17 +342,17 @@
         container.innerHTML = `
             <div class="grid-3" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 12px;">
                 <div class="card" style="border-top: 4px solid #00b4d8;">
-                    <h3>🔍 Аудит</h3>
+                    <h3>🔍 Стратегическая диагностика</h3>
                     <div class="big" style="font-size: 32px; color: #6c3ce0;">${(results.audit.priority * 100).toFixed(0)}%</div>
                     <div style="font-size: 13px; color: #6a6a8a;">Необходимость: ${(results.audit.need * 100).toFixed(0)}% · Готовность: ${(results.audit.readiness * 100).toFixed(0)}%</div>
                 </div>
                 <div class="card" style="border-top: 4px solid #6c3ce0;">
-                    <h3>🧠 Облегчённый</h3>
+                    <h3>🧠 Архитектура поведенческих контуров</h3>
                     <div class="big" style="font-size: 32px; color: #6c3ce0;">${(results.soft.priority * 100).toFixed(0)}%</div>
                     <div style="font-size: 13px; color: #6a6a8a;">Необходимость: ${(results.soft.need * 100).toFixed(0)}% · Готовность: ${(results.soft.readiness * 100).toFixed(0)}%</div>
                 </div>
                 <div class="card" style="border-top: 4px solid #ff6b8a; border: 2px solid #6c3ce0;">
-                    <h3>🚀 Гибкий запуск</h3>
+                    <h3>🚀 Корпоративная мастерская трансформации</h3>
                     <div class="big" style="font-size: 32px; color: #6c3ce0;">${(results.digital.priority * 100).toFixed(0)}%</div>
                     <div style="font-size: 13px; color: #6a6a8a;">Необходимость: ${(results.digital.need * 100).toFixed(0)}% · Готовность: ${(results.digital.readiness * 100).toFixed(0)}%</div>
                 </div>
@@ -364,16 +373,16 @@
         }
 
         if (p.audit.priority === max && p.audit.priority > 0.5) {
-            return '🔍 Аудит — оптимальный старт. Получите чёткую картину текущей системы и точки роста.';
+            return '🔍 Стратегическая диагностика — оптимальный старт. Получите чёткую картину текущей системы и точки роста.';
         }
         if (p.soft.priority === max && p.soft.priority > 0.5) {
-            return '🧠 Облегчённый контур — внедрение ритуалов и признания без IT. Хороший старт для подготовки к автоматизации.';
+            return '🧠 Архитектура поведенческих контуров — проектирование системы под вашу специфику, обучение команды, сопровождение.';
         }
         if (p.digital.priority === max && p.digital.priority > 0.5) {
-            return '🚀 Гибкий запуск — пилот на одной команде с автоматизацией. Требует IT-инфраструктуры и бюджета.';
+            return '🚀 Корпоративная мастерская трансформации — командное обучение и разработка готового прототипа. Требует IT-инфраструктуры и бюджета.';
         }
 
-        return 'Рекомендуем комбинированный подход: начать с аудита, затем выбрать следующий шаг.';
+        return 'Рекомендуем комбинированный подход: начать со стратегической диагностики, затем выбрать следующий шаг.';
     }
 
     // ══════════════════════════════════════════════════
@@ -405,9 +414,9 @@
                 <div class="section">
                     <h3>📈 Результаты углублённой диагностики</h3>
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 8px;">
-                        <div><strong>Аудит:</strong> ${(results.audit.priority * 100).toFixed(0)}%</div>
-                        <div><strong>Облегчённый:</strong> ${(results.soft.priority * 100).toFixed(0)}%</div>
-                        <div><strong>Гибкий запуск:</strong> ${(results.digital.priority * 100).toFixed(0)}%</div>
+                        <div><strong>Стратегическая диагностика:</strong> ${(results.audit.priority * 100).toFixed(0)}%</div>
+                        <div><strong>Архитектура поведенческих контуров:</strong> ${(results.soft.priority * 100).toFixed(0)}%</div>
+                        <div><strong>Корпоративная мастерская трансформации:</strong> ${(results.digital.priority * 100).toFixed(0)}%</div>
                     </div>
                 </div>
 
@@ -448,38 +457,38 @@
         const max = Math.max(results.audit.priority, results.soft.priority, results.digital.priority);
         if (results.audit.priority === max && results.audit.priority > 0.5) {
             return `
-                <p><strong>Аудит (2–3 недели)</strong></p>
+                <p><strong>Стратегическая диагностика (2–3 недели)</strong></p>
                 <ul style="padding-left: 20px; color: #4a4a6a;">
-                    <li>Анализ текущей системы мотивации</li>
-                    <li>Анонимный опрос сотрудников</li>
-                    <li>Интервью с руководителями</li>
-                    <li>Отчёт с рекомендациями</li>
+                    <li>Оценка зрелости системы мотивации</li>
+                    <li>Анализ KPI, опросы, интервью</li>
+                    <li>Выявление «слепых зон»</li>
+                    <li>Отчёт с рекомендациями по быстрым улучшениям</li>
                 </ul>
             `;
         }
         if (results.soft.priority === max && results.soft.priority > 0.5) {
             return `
-                <p><strong>Облегчённый контур (2–3 месяца)</strong></p>
+                <p><strong>Архитектура поведенческих контуров (2–3 месяца)</strong></p>
                 <ul style="padding-left: 20px; color: #4a4a6a;">
-                    <li>Проектирование ритуалов признания</li>
-                    <li>Внедрение горизонтального признания</li>
-                    <li>Создание дерева навыков</li>
-                    <li>Обучение руководителей и сотрудников</li>
+                    <li>Проектирование системы под вашу специфику</li>
+                    <li>Внедрение ритуалов признания, дерева навыков</li>
+                    <li>Обучение команды, сопровождение</li>
+                    <li>Горизонтальное признание от коллег</li>
                 </ul>
             `;
         }
         if (results.digital.priority === max && results.digital.priority > 0.5) {
             return `
-                <p><strong>Гибкий запуск (6–9 месяцев)</strong></p>
+                <p><strong>Корпоративная мастерская трансформации (6–9 месяцев)</strong></p>
                 <ul style="padding-left: 20px; color: #4a4a6a;">
-                    <li>Проектирование архитектуры под вашу компанию</li>
-                    <li>Разработка MVP (личный кабинет, API-интеграция)</li>
-                    <li>Пилот на одной команде</li>
-                    <li>Оценка и масштабирование</li>
+                    <li>Командное обучение в игровом формате</li>
+                    <li>Разработка готового прототипа системы</li>
+                    <li>Интеграция с Jira, Git, CRM через API</li>
+                    <li>Пилот на одной команде, масштабирование</li>
                 </ul>
             `;
         }
-        return '<p>Рекомендуется комбинированный подход: начать с аудита.</p>';
+        return '<p>Рекомендуется комбинированный подход: начать со стратегической диагностики.</p>';
     }
 
     function getRoadmap(results) {
@@ -511,7 +520,7 @@
                 </ul>
             `;
         }
-        return '<p>Начните с аудита, затем выберите следующий шаг.</p>';
+        return '<p>Начните со стратегической диагностики, затем выберите следующий шаг.</p>';
     }
 
     function getBudget(results) {
@@ -525,11 +534,11 @@
         if (results.digital.priority === max && results.digital.priority > 0.5) {
             return '<p><strong>Ориентировочная стоимость:</strong> 2–5 млн руб.</p>';
         }
-        return '<p><strong>Рекомендация:</strong> начните с аудита (150–300 тыс. руб.)</p>';
+        return '<p><strong>Рекомендация:</strong> начните со стратегической диагностики (150–300 тыс. руб.)</p>';
     }
 
     // ══════════════════════════════════════════════════
-    // 8. СКАЧИВАНИЕ ОТЧЁТА
+    // 8. СКАЧИВАНИЕ ОТЧЁТА (.TXT)
     // ══════════════════════════════════════════════════
 
     function downloadReport() {
@@ -539,7 +548,6 @@
             return;
         }
 
-        // Извлекаем текст
         const text = content.innerText + '\n\n' +
             '---\n' +
             'Сгенерировано автоматически, АНО «Центр нейро-контурного управления»\n' +
@@ -556,7 +564,62 @@
     }
 
     // ══════════════════════════════════════════════════
-    // 9. СБРОС
+    // 9. ПЕЧАТЬ В PDF
+    // ══════════════════════════════════════════════════
+
+    function printReport() {
+        window.print();
+    }
+
+    // ══════════════════════════════════════════════════
+    // 10. СКАЧИВАНИЕ В WORD (.DOC)
+    // ══════════════════════════════════════════════════
+
+    function downloadWord() {
+        const content = document.getElementById('report-content');
+        if (!content) {
+            alert('Сначала сгенерируйте отчёт!');
+            return;
+        }
+
+        const html = `
+            <html xmlns:o='urn:schemas-microsoft-com:office:office'
+                  xmlns:w='urn:schemas-microsoft-com:office:word'
+                  xmlns='http://www.w3.org/TR/REC-html40'>
+            <head>
+                <meta charset="utf-8">
+                <title>Отчёт по диагностике</title>
+                <style>
+                    body { font-family: 'Inter', Arial, sans-serif; padding: 30px; max-width: 800px; margin: 0 auto; }
+                    h2 { color: #6c3ce0; }
+                    h3 { margin-top: 20px; }
+                    .section { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+                    ul { padding-left: 20px; }
+                    .report { border: 1px solid #6c3ce0; padding: 20px; border-radius: 8px; }
+                </style>
+            </head>
+            <body>
+                ${content.innerHTML}
+                <p style="color: #888; font-size: 12px; margin-top: 40px; border-top: 1px solid #ddd; padding-top: 15px;">
+                    Сгенерировано автоматически, АНО «Центр нейро-контурного управления»<br>
+                    ${new Date().toLocaleString('ru-RU')}
+                </p>
+            </body>
+            </html>
+        `;
+
+        const blob = new Blob([html], { type: 'application/msword;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `Отчёт_${new Date().toISOString().slice(0,10)}.doc`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+    }
+
+    // ══════════════════════════════════════════════════
+    // 11. СБРОС
     // ══════════════════════════════════════════════════
 
     function resetAll() {
@@ -565,17 +628,15 @@
     }
 
     // ══════════════════════════════════════════════════
-    // 10. ВОССТАНОВЛЕНИЕ СОСТОЯНИЯ
+    // 12. ВОССТАНОВЛЕНИЕ СОСТОЯНИЯ
     // ══════════════════════════════════════════════════
 
-    // Если есть результаты, показываем их
     document.addEventListener('DOMContentLoaded', () => {
         const saved = localStorage.getItem('deepResults');
         if (saved) {
             try {
                 const results = JSON.parse(saved);
                 showScores(results);
-                // Показываем шаг 2, но не переключаем автоматически
             } catch (e) {}
         }
     });
